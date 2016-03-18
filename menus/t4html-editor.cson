@@ -1,0 +1,22 @@
+# See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Toggle t4html-editor'
+      'command': 't4html-editor:toggle'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 't4html-editor'
+      'submenu': [
+        {
+          'label': 'Toggle'
+          'command': 't4html-editor:toggle'
+        }
+      ]
+    ]
+  }
+]

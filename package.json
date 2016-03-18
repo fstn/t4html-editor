@@ -1,0 +1,23 @@
+{
+  "name": "t4html-editor",
+  "main": "./lib/t4html-editor",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "t4html-editor:toggle"
+  },
+  "repository": "https://github.com/atom/t4html-editor",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+      "event-kit": "^2.0.0",
+      "space-pen": "^5.1.2",
+      "jquery": "^2.0.0",
+      "atom-space-pen-views": "^2.0.3",
+      "bootstrap": "3.3.6"
+  }
+}
