@@ -13,6 +13,7 @@ class ResumeView extends View
   setSelectedBlock: (block) ->
     self.selectedBlock = block
     $(".selected-block").text(block.name);
+    console.log("#{block.name} was selected in resume view")
 
 
   setSelectedVerb: (verb) ->

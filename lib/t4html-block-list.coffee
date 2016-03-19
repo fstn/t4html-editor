@@ -1,9 +1,13 @@
 {View,$} = require 'space-pen'
 {TextEditorView,SelectListView} = require 'atom-space-pen-views'
 {Emitter} = require 'event-kit'
+{ExtendedSelectListView} = require './component/extended-select-list-view'
 
 module.exports =
 class BlockSelectView extends SelectListView
+  
+   console.log this
+   getFilterKey: -> "name"
    initialize: ->
     @emitter = new Emitter
     self = this
@@ -21,14 +25,14 @@ class BlockSelectView extends SelectListView
     realData = []
 
     @setItems(realData)
-    @focusFilterEditor()
+    @focusFilterEditor("")
+    console.log "query"+@getFilterKey()
 
    viewForItem: (item) ->
      "<li>#{item.name}</li>"
 
    confirmed: (item) ->
      @emitter.emit 'selected-block-changed', item
-     @emitter.dispose()
      self.selectedBlock = item
      @filterEditorView.setText(item.name)
      console.log("#{item.name} was selected")

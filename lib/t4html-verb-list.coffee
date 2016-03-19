@@ -3,34 +3,45 @@
 {Emitter} = require 'event-kit'
 
 module.exports =
-class BlockSelectView extends SelectListView
+class BlockSelectView  extends View
+
+  @content: ->
+    @div class: 'verbs-list', =>
+
    initialize: ->
     @emitter = new Emitter
     self = this
-    self.selectedVerb = {}
     $.ajax 'http://localhost:8080/rest/verbs',
         success  : (data, status, xhr) ->
-            cleanData = []
             self.setItems(data);
-            console.log "data"+cleanData
         error    : (xhr, status, err) ->
             console.log("nah "+err)
         complete : (xhr, status) ->
             console.log("comp")
-    super
     @addClass('col-xs-2')
-    realData = []
 
-    @setItems(realData)
-    @focusFilterEditor()
+   setItems: (items) ->
+    $(".verbs-list").html("<div class='block'>
+          <div>Extra Small</div>
+          <div class='btn-group btn-group-xs verbs-group'>
+          </div>
+      </div>
+    ")
+    items.forEach (item, i) ->
+      if item == "replace"
+        $(".verbs-group").append("<button class='btn icon icon-gear inline-block-tight btn-error col-xs-12'>"+item+"</button>")
+      else
+        $(".verbs-group").append("<button class='btn icon icon-gear inline-block-tight btn-primary col-xs-12'>"+item+"</button>")
+      return
+
+
+
 
    viewForItem: (item) ->
      "<li>#{item}</li>"
 
    confirmed: (item) ->
      @emitter.emit 'selected-verb-changed', item
-     @emitter.dispose()
-     self.selectedVerb = item
      @filterEditorView.setText(item)
      console.log("#{item} was selected")
 
