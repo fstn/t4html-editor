@@ -18,20 +18,21 @@ class BlockSelectView  extends View
             console.log("nah "+err)
         complete : (xhr, status) ->
             console.log("comp")
-    @addClass('col-xs-2')
+    @addClass('col-xs-6')
 
    setItems: (items) ->
-    $(".verbs-list").html("<div class='block'>
-          <div>Extra Small</div>
-          <div class='btn-group btn-group-xs verbs-group'>
-          </div>
-      </div>
+    $(".verbs-list").html("
+    <div class='select-list verbs-list-container'>
+        <ol class='list-group verbs-group'>
+        </ol>
+    </div>
     ")
     items.forEach (item, i) ->
-      if item == "replace"
-        $(".verbs-group").append("<button class='btn icon icon-gear inline-block-tight btn-error col-xs-12'>"+item+"</button>")
-      else
-        $(".verbs-group").append("<button class='btn icon icon-gear inline-block-tight btn-primary col-xs-12'>"+item+"</button>")
+        $(".verbs-group").append("
+            <li class='selected'>
+                <div class='status status-added icon icon-diff-added'></div>
+                <div class='icon icon-file-text'>"+item+"</div>
+            </li>")
       return
 
 

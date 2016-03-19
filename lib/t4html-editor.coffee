@@ -1,33 +1,17 @@
-BlockList = require './t4html-block-list'
-VerbList = require './t4html-verb-list'
-ResumeView = require './t4html-resume'
 {CompositeDisposable} = require 'atom'
+AddBlockView = require './add-block-view'
 
 module.exports = T4htmlEditor =
-  blocksList: null
+  addBlockView: null
   verbsList: null
   resumeView: null
 #  modalPanel: null
   subscriptions: null
-
+  content: null
 
   activate: (state) ->
-
     self = this
-    console.log ('test')
-    self.blocksList = new BlockList(state.blocksListViewState)
-    self.verbsList = new VerbList(state.verbsListViewState)
-    self.resumeView = new ResumeView()
-
-    self.verbsList.emitter.on 'selected-verb-changed', (verb) ->
-      self.resumeView.setSelectedVerb verb
-
-    self.blocksList.emitter.on 'selected-block-changed', (block) ->
-      self.resumeView.setSelectedBlock  block
-
-
-  #  @modalPanel = atom.workspace.addModalPanel(item: @t4htmlEditorView.getElement(), visible: true)
-
+    console.log ('main: activate')
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     self.subscriptions = new CompositeDisposable
 
@@ -35,26 +19,18 @@ module.exports = T4htmlEditor =
     self.subscriptions.add atom.commands.add 'atom-workspace', 't4html-editor:toggle': => self.toggle()
 
   deactivate: ->
-  #  @modalPanel.destroy()
-    @subscriptions.dispose()
-    @blocksList.destroy()
-    @verbsList.destroy()
+    @addBlockView.destroy()
 
   serialize: ->
-    blocksListViewState: @blocksList.serialize()
-    verbsListViewState: @verbsList.serialize()
 
   toggle: ->
-    editor = atom.workspace.getActiveTextEditor()
-    content = document.createElement('div')
-    selectedValue = document.createElement('div')
-    selectedValue.className = 'col-xs-2 '
-    content.className = 'row'
-    console.log("log"+@blocksList[0])
-    content.appendChild(@blocksList[0])
-    content.appendChild(@verbsList[0])
-    console.log @resumeView
-    content.appendChild(@resumeView[0])
-    atom.workspace.addTopPanel({
-      item:  content
+    self.addBlockView = new AddBlockView()
+    self.content = document.createElement('div')
+    self.content.className = "createBlocks"
+    console.log ('main: content:'+self.content)
+    console.log ('main: appendChild:'+self.addBlockView.getContent())
+    self.content.appendChild(self.addBlockView.getContent())
+    atom.workspace.addModalPanel({
+      item:  self.content
       })
+    self.addBlockView.toggle()

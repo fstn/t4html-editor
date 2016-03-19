@@ -1,41 +1,45 @@
 {View,$} = require 'space-pen'
 {TextEditorView,SelectListView} = require 'atom-space-pen-views'
 {Emitter} = require 'event-kit'
-{ExtendedSelectListView} = require './component/extended-select-list-view'
 
 module.exports =
-class BlockSelectView extends SelectListView
-  
-   console.log this
-   getFilterKey: -> "name"
-   initialize: ->
-    @emitter = new Emitter
+class BlockSelectView
     self = this
-    self.selectedBlock = {}
-    $.ajax 'http://localhost:8080/rest/blocks/original',
-        success  : (data, status, xhr) ->
-            self.setItems(data);
-            console.log "data"+data
-        error    : (xhr, status, err) ->
-            console.log("nah "+err)
-        complete : (xhr, status) ->
-            console.log("comp")
-    super
-    @addClass('col-xs-2')
-    realData = []
-
-    @setItems(realData)
-    @focusFilterEditor("")
-    console.log "query"+@getFilterKey()
+    constructor: ->
+      console.log ('block-list: initialize ')
+      self.content = document.createElement('div')
+      self.content.className = 'blocks-list'
+      self.emitter = new Emitter
+    getEmitter: -> self.emitter
+    getContent: -> self.content
+    toggle: ->
+      $.ajax 'http://localhost:8080/rest/blocks/original',
+          success  : (data, status, xhr) ->
+                $(".blocks-list").html("
+                <div class='select-list blocks-list-container'>
+                    <ol class='list-group blocks-group'>
+                    </ol>
+                </div>
+                ")
+                data.forEach (item, i) ->
+                    $(".blocks-group").append("
+                        <li class='selected'>
+                            <div class='status status-added icon icon-diff-added'></div>
+                            <div class='icon icon-file-text'>"+item.name+"</div>
+                        </li>")
+                  return
+          error    : (xhr, status, err) ->
+              console.log("nah "+err)
+          complete : (xhr, status) ->
+              console.log("comp")
 
    viewForItem: (item) ->
-     "<li>#{item.name}</li>"
+     "<li>#{item}</li>"
 
    confirmed: (item) ->
-     @emitter.emit 'selected-block-changed', item
-     self.selectedBlock = item
-     @filterEditorView.setText(item.name)
-     console.log("#{item.name} was selected")
+     @emitter.emit 'selected-verb-changed', item
+     @filterEditorView.setText(item)
+     console.log("#{item} was selected")
 
    cancelled: ->
      @filterEditorView.setText('')
