@@ -1,27 +1,41 @@
 {$, View} = require 'space-pen'
-{CompositeDisposable} = require 'atom'
+{CompositeDisposable, Emitter} = require 'atom'
+{BlockDetails}  = require './block-details'
+
 
 class BlockList extends View
 
   instance: null
+  pkg: null
+
 
   @content: (state, pkg) ->
     @div class: 'select-list width-200', =>
       @ol class: 'list-group', =>
-        for {path: name, name} in state.originalBlocks
+        for block in state.originalBlocks
           @li =>
-            @div click: 'addBlock', class: 'icon icon-diff-added ', =>
-            @div click: 'viewBlock', class: 'icon icon-file-text', =>
-            @text name
+            @div click: 'addBlock', id: block.name, class: 'icon icon-diff-added ', =>
+            @div click: 'viewBlock', id: block.name, class: 'icon icon-file-text', =>
+            @text block.name
 
   initialize: (@state, @pkg) ->
+    @pkg = pkg
     @subs = new CompositeDisposable
 
   viewBlock: (event, element) ->
-    console.log 'BlockList: viewBlock'+event
+    BlockDetails.detect(@pkg,{name:element.attr('id')})
+    console.log 'BlockList: viewBlock '+element.attr('id')
 
   addBlock: (event, element) ->
-    console.log 'BlockList: addBlock'+event
+    self = this
+    $.ajax 'http://localhost:8080/rest/blocks/original/'+element.attr('id'),
+      success  : (block, status, xhr) ->
+        console.log 'BlockList: block fullLoaded '+block
+        self.pkg.editBlock(block)
+      error    : (xhr, status, err) ->
+          console.log("nah "+err)
+      complete : (xhr, status) ->
+          console.log("comp")
 
   @detect: (pkg) ->
     return if @instance?
