@@ -1,6 +1,7 @@
 {$, ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 {js_beautify} = require 'js-beautify'
+{Config} = require '../config.coffee'
 
 class BlockEdit extends ScrollView
 
@@ -36,26 +37,12 @@ class BlockEdit extends ScrollView
     @subs = new CompositeDisposable
 
     @viewElements = [
-      {verb:'before',model: @beforeModel,parent: @blockBefore }
-      {verb:'prepend',model: @prependModel,parent: @blockPrepend }
-      {verb:'append',model: @appendModel,parent: @blockAppend }
-      {verb:'after',model: @afterModel,parent: @blockAfter }
+      {verb:Config.BEFORE_VERB,model: @beforeModel,parent: @blockBefore }
+      {verb:Config.PREPEND_VERB,model: @prependModel,parent: @blockPrepend }
+      {verb:Config.APPEND_VERB,model: @appendModel,parent: @blockAppend }
+      {verb:Config.AFTER_VERB,model: @afterModel,parent: @blockAfter }
     ]
     @createViewElements(viewElement) for viewElement in  @viewElements
-
-
-  deactivate: ->
-    console.log 'BlockEdit: destroy '+event
-    @instance = null;
-    @state = null;
-
-  @detect: (pkg,block) ->
-    console.log 'BlockEdit: detect '+pkg+' '+block
-    # return if @instance?
-    @state = {}
-    @state.block = block
-    @instance = new BlockEdit(@state, pkg)
-    @instance
 
   save: (event,element)->
     @saveViewElements(viewElement) for viewElement in  @viewElements
@@ -68,7 +55,13 @@ class BlockEdit extends ScrollView
 
   saveViewElements: (viewElement) ->
     if viewElement.model.getText() != ""
-      block = {name:@state.block.name,content:viewElement.model.getText(),verb:viewElement.verb}
+      newBlockName = "PS_"+viewElement.verb+"_"+@state.block.name
+      #Adding block describe subtags
+      blockContentWithTags =  Config.START_FLAG+":"+Config.DESCRIBE_VERB+":"+newBlockName+"-->"+
+                              viewElement.model.getText()+Config.END_FLAG+":"+
+                              Config.DESCRIBE_VERB+":"+newBlockName+"-->"
+      block = {name:@state.block.name,content:blockContentWithTags,verb:viewElement.verb}
+      #Saving blocks
       $.ajax 'http://localhost:8080/rest/blocks/available/',
         type: 'POST',
         data: JSON.stringify(block),
@@ -86,6 +79,19 @@ class BlockEdit extends ScrollView
   getTitle: -> @state.block.name
 
   getModel: ->
+
+  deactivate: ->
+    console.log 'BlockEdit: destroy '+event
+    @instance = null;
+    @state = null;
+
+  @detect: (pkg,block) ->
+    console.log 'BlockEdit: detect '+pkg+' '+block
+    # return if @instance?
+    @state = {}
+    @state.block = block
+    @instance = new BlockEdit(@state, pkg)
+    @instance
 
 
 
