@@ -10,13 +10,15 @@ class BlockList extends View
 
 
   @content: (state, pkg) ->
-    @div class: 'select-list width-200', =>
+    @div class: 'select-block-list width-200', =>
       @ol class: 'list-group', =>
-        for block in state.originalBlocks
-          @li =>
-            @div click: 'addBlock', id: block.name, class: 'icon icon-diff-added ', =>
-            @div click: 'viewBlock', id: block.name, class: 'icon icon-file-text', =>
-            @text block.name
+        for origin,blocks of state.originalBlocks
+          @h2 origin
+          for block in blocks
+            @li =>
+              @div click: 'addBlock', id: block.name, class: 'icon icon-diff-added ', =>
+              @div click: 'viewBlock', id: block.name, class: 'icon icon-file-text', =>
+              @text block.name
 
   initialize: (@state, @pkg) ->
     @pkg = pkg
@@ -42,10 +44,16 @@ class BlockList extends View
     console.log 'BlockList: detect'
     $.ajax 'http://localhost:8080/rest/blocks/original',
         success  : (data, status, xhr) ->
+            blockSortByOrigin = data.reduce(((map, obj) ->
+                if map[obj.origin] == undefined
+                  map[obj.origin] = []
+                map[obj.origin].push  obj
+                map
+            ), {})
             state = {}
-            state.originalBlocks = data
+            state.originalBlocks = blockSortByOrigin
             @instance = new BlockList(state, pkg)
-            atom.workspace.addRightPanel item: @instance
+            atom.workspace.addLeftPanel item: @instance
             console.log 'BlockList: fullLoaded'
         error    : (xhr, status, err) ->
             console.log("nah "+err)

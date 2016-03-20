@@ -2,6 +2,7 @@
 {CompositeDisposable} = require 'atom'
 {js_beautify} = require 'js-beautify'
 {Config} = require '../config.coffee'
+editBlockUrl = 'C:\\DevTools\\Git\\t4html-html-template-builder\\t4html-core\\src\\test\\resources\\fullSite\\html\\blocks\\ps.html.blocks'
 
 class BlockEdit extends ScrollView
 
@@ -20,6 +21,9 @@ class BlockEdit extends ScrollView
         @div class:'row', =>
           @div class: 'col-xs-12 ', =>
             @span click: 'save', class:"icon icon-mirror float-right padding-lt-5"
+            @span click: 'openFile', class:"icon icon-file-text float-right padding-lt-5"
+            @span click: 'package', class:"icon icon-package float-right padding-lt-5"
+
             @h2 'Before Content'
             @span click: 'close', class:"icon icon-eye-unwatch float-right padding-lt-5"
             @div class: 'field block-before', outlet: 'blockBefore'
@@ -28,8 +32,7 @@ class BlockEdit extends ScrollView
               @span click: 'close', class:"icon icon-eye-unwatch float-right padding-lt-5"
               @div class: 'field block-prepend', outlet: 'blockPrepend'
               @h2 'Content'
-              @pre class:"row", =>
-                @code js_beautify(state.block.content)
+              @div class: 'field original-content', outlet: 'originalContent'
               @h2 'Append Content'
               @span click: 'close', class:"icon icon-eye-unwatch float-right padding-lt-5"
               @div class: 'field block-append', outlet: 'blockAppend'
@@ -41,6 +44,7 @@ class BlockEdit extends ScrollView
   initialize: (@state, @pkg) ->
     self = this
     @subs = new CompositeDisposable
+    @blockDetails.append("<div class='loading-content'><span class='loading loading-spinner-large inline-block'></span></div>")
 
     @viewElements = [
       {verb:Config.BEFORE_VERB,model: @beforeModel,parent: @blockBefore }
@@ -53,7 +57,14 @@ class BlockEdit extends ScrollView
       type: 'GET',
       success  : (customBlocks, status, xhr) ->
         self.customBlocks = customBlocks
+        originalModel = atom.workspace.buildTextEditor()
+        originalModel.setGrammar(atom.grammars.grammarForScopeName('text.html.basic'))
+        originalModel.setText(state.block.content)
+        lineModel = atom.views.getView(originalModel)
+        self.originalContent.append(lineModel)
+        self.originalContent.disable();
         self.createViewElements(viewElement) for viewElement in  self.viewElements
+        $(".loading-content").hide();
         console.log('Custom blocks load completed '+customBlocks)
       error    : (xhr, status, err) ->
         console.log('Unable to load custom blocks')
@@ -64,7 +75,7 @@ class BlockEdit extends ScrollView
     if element.hasClass("icon-eye-unwatch")
       element.removeClass("icon-eye-unwatch")
       element.addClass("icon-eye")
-      element.next().css("max-height","20px")
+      element.next().css("max-height","30px")
       element.next().css("overflow","hidden")
     else
       element.removeClass("icon-eye")
@@ -72,9 +83,14 @@ class BlockEdit extends ScrollView
       element.next().css("max-height","1000px")
       element.next().css("overflow","visible")
 
-  save: (event,element)->
+  save: (event,element) ->
     @saveViewElements(viewElement) for viewElement in  @viewElements
 
+  openFile: (event,element) ->
+    atom.workspace.open editBlockUrl
+
+  package:(event,element) ->
+    
   createViewElements: (viewElement) ->
     self = this
     viewElement.model = atom.workspace.buildTextEditor()
@@ -82,6 +98,7 @@ class BlockEdit extends ScrollView
       if viewElement.verb  == customBlock.verb
         customBlock.content= @cleanContent(customBlock.content)
         customBlockWithoutTag = customBlock.content.replace(/<!--start-block:describe:.*-->([\s\S]*?)<!--end-block:describe:.*-->/, "$1");
+        viewElement.model.setGrammar(atom.grammars.grammarForScopeName('text.html.basic'))
         viewElement.model.setText(customBlockWithoutTag)
     line_edit = atom.views.getView(viewElement.model)
     line_edit.className = 'block-content'

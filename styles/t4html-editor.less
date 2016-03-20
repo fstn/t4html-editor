@@ -1,3 +1,4 @@
+@import "ui-variables";
 
 .icon:hover {
     color: #d7dae0;
@@ -19,19 +20,42 @@
 .inside-block-tags{
     margin:10px;
     padding: 20px;
-    border: 2px solid @button-background-color-selected;
+    border: 1px solid @text-color-highlight
 }
 
 .block-before atom-text-editor,.block-after atom-text-editor{
-  border: 2px solid @background-color-info;
+  border: 1px solid @text-color-info;
   background-color:rgba(153, 187, 255, 0.04);
   color:@base-border-color;
 }
 
 .block-append atom-text-editor,.block-prepend atom-text-editor{
-  border: 2px solid @background-color-info;
+  border: 1px solid @text-color-info;
   background-color:rgba(153, 187, 255, 0.04);
   color:@base-border-color;
+}
+
+.original-content{
+  opacity: 0.5;
+}
+
+.loading{
+    top: 40%;
+    left: 50%;
+}
+
+.loading-content{
+  position:fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left:0;
+  background-color: @base-background-color;
+  display:block;
+}
+
+.select-block-list{
+  margin: 5px;
 }
 
 .padding-lt-5 {

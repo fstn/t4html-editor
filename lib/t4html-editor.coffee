@@ -2,6 +2,7 @@
 {BlockList} = require './view/block-list'
 {BlockEdit}  = require './view/block-edit'
 t4htmlUrl = 'atom://t4html'
+path = require 'path'
 
 module.exports = T4htmlEditor =
   BlockEditView: null
@@ -20,6 +21,15 @@ module.exports = T4htmlEditor =
       console.log 'BlockList: add opener block '+self.selectedBlock+" "+uri
       BlockEdit.detect(self.pkgEmitter,self.selectedBlock) if uri is t4htmlUrl;
 
+    atom.workspace.observeTextEditors (editor) ->
+      if path.extname(editor.getPath()) == ".blocks"
+          editor.setGrammar(atom.grammars.grammarForScopeName('text.html.basic'))
+
+    #Close tree view
+    if atom.workspace.getLeftPanels().length > 0
+      workspaceView = atom.views.getView(atom.workspace)
+      atom.commands.dispatch(workspaceView, 'tree-view:toggle')
+
     @subs = new CompositeDisposable
     @emitter = new Emitter
 
@@ -30,6 +40,7 @@ module.exports = T4htmlEditor =
       editBlock: (block) ->
         self.selectedBlock = block
         console.log 'main: edit block '+block
+        atom.workspace.getActivePane().close()
         atom.workspace.open t4htmlUrl
 
     self = this
