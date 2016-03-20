@@ -1,5 +1,7 @@
-{CompositeDisposable} = require 'atom'
-AddBlockView = require './add-block-view'
+{CompositeDisposable, Emitter} = require 'atom'
+
+{BlockList} = require './view/block-list'
+
 
 module.exports = T4htmlEditor =
   addBlockView: null
@@ -10,27 +12,27 @@ module.exports = T4htmlEditor =
   content: null
 
   activate: (state) ->
+
+    @subs = new CompositeDisposable
+    @emitter = new Emitter
+
+    pkgEmitter =
+      onAddBlock: (callback) => @onAddBlocks(callback)
+      onOpenBlock: (callback) => @onOpenBlock(callback)
+
     self = this
     console.log ('main: activate')
-    # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
-    self.subscriptions = new CompositeDisposable
-
     # Register command that toggles this view
-    self.subscriptions.add atom.commands.add 'atom-workspace', 't4html-editor:toggle': => self.toggle()
+    @subs.add atom.commands.add 'atom-workspace', 't4html-editor:toggle': ->
+      BlockList.detect(pkgEmitter)
+
+  onAddBlock: (callback) ->
+    @emitter.on 'add-block', callback
+
+  onOpenBlock: (callback) ->
+    @emitter.on 'open-block', callback
+
 
   deactivate: ->
-    @addBlockView.destroy()
-
-  serialize: ->
-
-  toggle: ->
-    self.addBlockView = new AddBlockView()
-    self.content = document.createElement('div')
-    self.content.className = "createBlocks"
-    console.log ('main: content:'+self.content)
-    console.log ('main: appendChild:'+self.addBlockView.getContent())
-    self.content.appendChild(self.addBlockView.getContent())
-    atom.workspace.addModalPanel({
-      item:  self.content
-      })
-    self.addBlockView.toggle()
+    @subs.dispose()
+    @emitter.dispose()
