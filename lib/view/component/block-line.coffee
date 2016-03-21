@@ -11,13 +11,12 @@ class BlockLine extends View
   disable: false
 
   @content: (state, pkg) ->
-    @div  =>
-      @div class: 'inside-block-tags', outlet: 'blockDetails', =>
-        @span click: 'delete', outlet: 'deleteButton', class:"icon icon-x float-right padding-lt-5" if !state.readOnly
-        @span click: 'save', outlet: 'saveButton', class:"icon icon-file-zip float-right padding-lt-5" if !state.readOnly
-        @span click: 'toggle', outlet: 'toggleButton', class:"icon icon-circle-slash float-right padding-lt-5" if state.readOnly
-        @span state.block.name, class:"float-right padding-lt-5" if state.readOnly
-
+      @div class: 'readOnly-block', =>
+        @div class: 'inside-block-tags', outlet: 'blockDetails', =>
+          @span click: 'delete', outlet: 'deleteButton', class:"icon icon-x float-right padding-lt-5" if !state.readOnly
+          @span click: 'save', outlet: 'saveButton', class:"icon icon-file-zip float-right padding-lt-5" if !state.readOnly
+          @span click: 'toggle', outlet: 'toggleButton', class:"icon icon-circle-slash float-right padding-lt-5" if state.readOnly
+          @span state.block.name, class:"float-right padding-lt-5" if state.readOnly
 
   #Call when view is displayed, we can use outlet variable here
   initialize: (@state, @pkg) ->
