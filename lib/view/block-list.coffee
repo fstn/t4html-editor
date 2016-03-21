@@ -1,7 +1,7 @@
 {$, View} = require 'space-pen'
 {CompositeDisposable, Emitter} = require 'atom'
 {BlockDetails}  = require './block-details'
-
+{FileEdit}  = require './file-edit'
 
 class BlockList extends View
 
@@ -13,10 +13,9 @@ class BlockList extends View
     @div class: 'select-block-list width-200', =>
       @ol class: 'list-group', =>
         for origin,blocks of state.originalBlocks
-          @h2 origin
+          @h2 origin, class: 'origin', id: origin, click: 'viewFileContent'
           for block in blocks
             @li =>
-              @div click: 'addBlock', id: block.name, class: 'icon icon-diff-added ', =>
               @div click: 'viewBlock', id: block.name, class: 'icon icon-file-text', =>
               @text block.name
 
@@ -28,6 +27,7 @@ class BlockList extends View
     BlockDetails.detect(@pkg,{name:element.attr('id')})
     console.log 'BlockList: viewBlock '+element.attr('id')
 
+  # TODO remove this not used yet
   addBlock: (event, element) ->
     self = this
     $.ajax 'http://localhost:8080/rest/blocks/original/'+element.attr('id'),
@@ -38,6 +38,15 @@ class BlockList extends View
           console.log("nah "+err)
       complete : (xhr, status) ->
           console.log("comp")
+
+  viewFileContent: (event,element) ->
+    self = this
+    selectedOrigin = element.attr('id')
+    listOfBlocks = @state.originalBlocks[selectedOrigin]
+    console.log 'BlockList: view file content '+selectedOrigin+' '+listOfBlocks
+    self.pkg.editFile(selectedOrigin,listOfBlocks)
+    console.log 'FileEdit: viewBlock '+selectedOrigin
+
 
   @detect: (pkg) ->
     return if @instance?

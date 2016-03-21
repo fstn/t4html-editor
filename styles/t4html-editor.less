@@ -18,9 +18,7 @@
 }
 
 .inside-block-tags{
-    margin:10px;
-    padding: 20px;
-    border: 1px solid @text-color-highlight
+    margin: 10px;
 }
 
 .block-before atom-text-editor,.block-after atom-text-editor{
@@ -63,6 +61,45 @@
     padding-top: 5px;
 }
 
+.block-append atom-text-editor, .block-prepend atom-text-editor,.block-before atom-text-editor, .block-after atom-text-editor{
+    color:white;
+}
+
+.add-line{
+  background-color: @button-background-color-selected;
+  color: @base-background-color;
+  height: 20px;
+  width: 100%;
+  display: block;
+  margin-top: 10px;
+  text-align: center;
+  line-height: 20px;
+}
+
+.add-line:hover{
+  transition: background 1s;
+  background-color: @background-color-info;
+}
+
+.new-block-content{
+  border: 1px solid @button-background-color-selected;
+  padding-right: 20px;
+  padding-left: 20px;
+  margin-top: 0px;
+  padding-top: 0px;
+}
+
+.blockDisabled{
+  opacity: 0.2;
+}
+
+.blockEnabled{
+  opacity: 1;
+}
+
+.origin:hover{
+  color: white;
+}
 
 .padding-2{
       padding: 2px;

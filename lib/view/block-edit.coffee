@@ -61,6 +61,7 @@ class BlockEdit extends ScrollView
         originalModel.setGrammar(atom.grammars.grammarForScopeName('text.html.basic'))
         originalModel.setText(state.block.content)
         lineModel = atom.views.getView(originalModel)
+
         self.originalContent.append(lineModel)
         self.originalContent.disable();
         self.createViewElements(viewElement) for viewElement in  self.viewElements
@@ -90,7 +91,7 @@ class BlockEdit extends ScrollView
     atom.workspace.open editBlockUrl
 
   package:(event,element) ->
-    
+
   createViewElements: (viewElement) ->
     self = this
     viewElement.model = atom.workspace.buildTextEditor()
@@ -131,7 +132,7 @@ class BlockEdit extends ScrollView
         complete : (xhr, status) ->
           console.log("comp")
 
-  getUri: -> "atom://t4html"
+  getUri: -> CONFIG.BLOCK_EDIT_URL
 
   getTitle: -> @state.block.name
 

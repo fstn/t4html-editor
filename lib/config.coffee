@@ -11,6 +11,8 @@ class Config
     @APPEND_VERB: "append"
     @PREPEND_VERB: "prepend"
     @DESCRIBE_VERB: "describe"
+    @FILE_EDIT_URL: "atom://t4html-file-edit"
+    @BLOCK_EDIT_URL: "atom://t4html-block-edit"
     @WS_URL: 'http://localhost:8080/rest/blocks/'
     constructor: ->
 
