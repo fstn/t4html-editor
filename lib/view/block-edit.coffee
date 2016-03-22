@@ -53,7 +53,7 @@ class BlockEdit extends ScrollView
       {verb:Config.AFTER_VERB,model: @afterModel,parent: @blockAfter }
     ]
 
-    $.ajax Config.WS_URL+'available/'+@state.block.name,
+    $.ajax Config.WS_URL+'/blocks/available/'+@state.block.name,
       type: 'GET',
       success  : (customBlocks, status, xhr) ->
         self.customBlocks = customBlocks
@@ -105,10 +105,6 @@ class BlockEdit extends ScrollView
     line_edit.className = 'block-content'
     viewElement.parent.append(line_edit)
 
-  cleanContent: (blockConent) ->
-    blockConent = blockConent.replace(/^\s*$[\n\r]{1,}/gm,'')
-    blockConent
-
   saveViewElements: (viewElement) ->
     if viewElement.model.getText() != ""
       newBlockName = "PS_"+viewElement.verb+"_"+@state.block.name
@@ -120,7 +116,7 @@ class BlockEdit extends ScrollView
       blockContentWithTags= @cleanContent(blockContentWithTags)
       block = {name:@state.block.name,content:blockContentWithTags,verb:viewElement.verb}
       #Saving blocks
-      $.ajax Config.WS_URL+'available/',
+      $.ajax Config.WS_URL+'/blocks/available/',
         type: 'POST',
         data: JSON.stringify(block),
         contentType: 'application/json; charset=utf-8',

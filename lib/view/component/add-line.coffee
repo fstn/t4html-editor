@@ -2,6 +2,7 @@
 {CompositeDisposable} = require 'atom'
 {js_beautify} = require 'js-beautify'
 {Config} = require '../../config'
+{Package} = require '../../config'
 {BlockLine} = require './block-line'
 
 class AddLine extends View
@@ -17,13 +18,19 @@ class AddLine extends View
         @div class: 'new-block-content', outlet: 'content'
 
     #Call when view is displayed, we can use outlet variable here
-    initialize: (@state, @pkg) ->
+    initialize: (@state, @pkg, originalBlock, customBlock)->
       self = this
       @subs = new CompositeDisposable
-      @block = {'name':'PS_'+@state.verb+'_'+@state.block.name,'verb':@state.verb,'content':'add content here ...'}
-      @blockLine = BlockLine.detect(@pkg,@state.origin,@block,false)
-      @blockLine.hide();
+      @block  = customBlock
+      console.log 'AddLine: initialize originalBlock '+JSON.stringify(originalBlock)+' customBlock '+JSON.stringify(customBlock)
+      if @block.content == ""
+        @block.content = 'add content here ...'
+        @block.new = true
+
+      @blockLine = BlockLine.detect(@pkg,originalBlock.origin,@block,false)
       @content.append(@blockLine)
+      if @block.new
+        @blockLine.hide();
 
     deactivate: ->
       console.log 'AddLine: destroy '+event
@@ -33,13 +40,11 @@ class AddLine extends View
     addBlock: (event, element) ->
       @blockLine.show();
 
-    @detect: (pkg, origin, verb, block) ->
+    @detect: (pkg, origin,  originalBlock, customBlock) ->
       @state = {}
       @state.origin = origin
-      @state.verb = verb
-      @state.block = block
-      console.log 'AddLine: detect '+pkg+' '+block
-      @instance = new AddLine(@state, pkg, origin, verb, block)
+      console.log 'AddLine: detect pkg '+pkg+' origin '+origin+' originalBlock '+JSON.stringify(originalBlock)+' customBlock '+JSON.stringify(customBlock)
+      @instance = new AddLine(@state, pkg, originalBlock, customBlock)
       @instance
 
   module.exports =

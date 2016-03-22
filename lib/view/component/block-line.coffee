@@ -3,6 +3,7 @@
 {js_beautify} = require 'js-beautify'
 {Config} = require '../../config'
 {BlockFacade} = require '../../block-facade'
+{Block} = require '../../model/block'
 
 class BlockLine extends View
 
@@ -46,8 +47,9 @@ class BlockLine extends View
                               @editor.getText()+"\n"+Config.END_FLAG+":"+
                               Config.DESCRIBE_VERB+":"+newBlockName+"-->"
 
-      blockContentWithTags= @cleanContent(blockContentWithTags)
-      block = {name:@state.block.name,content:blockContentWithTags,verb:@state.block.verb}
+      blockContentWithTags= BlockFacade.cleanContent(blockContentWithTags)
+      blockContentWithTags= BlockFacade.removeDescribeTag(blockContentWithTags)
+      block = new Block(@state.block.name,@state.block.verb,blockContentWithTags)
       BlockFacade.save(block,null,null)
 
   toggle: () ->
@@ -69,9 +71,6 @@ class BlockLine extends View
   package:(event,element) ->
 
 
-  cleanContent: (blockConent) ->
-    blockConent = blockConent.replace(/^\s*$[\n\r]{1,}/gm,'')
-    blockConent
 
   getUri: -> "atom://t4html"
 

@@ -4,6 +4,11 @@
 {Config} = require '../config.coffee'
 {BlockLine} = require './component/block-line.coffee'
 {AddLine} = require './component/add-line.coffee'
+{Package} = require '../package'
+{Block} = require '../model/block'
+{BlockFacade} = require '../block-facade'
+{PackageFacade} = require '../package-facade'
+
 
 class FileEdit extends ScrollView
 
@@ -12,21 +17,29 @@ class FileEdit extends ScrollView
 
   @content: (state, pkg) ->
     @div class: 'edit-panel pane-item', tabindex: -1, =>
+      @span click: 'package', class:"icon icon-package float-right padding-lt-5"
       @div class: 'block-details container-fluid', outlet: 'blockDetails', =>
         @div class:'row', =>
           @div class: 'col-xs-12 ', outlet: 'blocksList'
 
   #Call when view is displayed, we can use outlet variable here
   initialize: (@state, @pkg) ->
-    self = this
     @subs = new CompositeDisposable
-    for block in @state.listOfBlocks
-      addBlock = AddLine.detect(@pkg,@state.origin,Config.BEFORE_VERB,block)
-      @blockDetails.append(addBlock)
-      blockLine = BlockLine.detect(@pkg,@state.origin,block,true)
-      @blockDetails.append(blockLine)
-      addBlock = AddLine.detect(@pkg,@state.origin,Config.AFTER_VERB,block)
-      @blockDetails.append(addBlock)
+    self = this
+    for block in Package.model.listOfSelectedBlocks
+      BlockFacade.getCustomyOriginalAndVerb(block,Config.BEFORE_VERB,(customBlock) ->
+          console.log("FileEdit custom block "+JSON.stringify(customBlock))
+          addBlock = AddLine.detect(Package.model.pkg,Package.model.selectedOrigin,block,customBlock)
+          self.blockDetails.append(addBlock)
+          blockLine = BlockLine.detect(Package.model.pkg,self.state.origin,block,true)
+          self.blockDetails.append(blockLine)
+          BlockFacade.getCustomyOriginalAndVerb(block,Config.AFTER_VERB,(customBlock) ->
+            addBlock = AddLine.detect(Package.model.pkg,Package.model.selectedOrigin,block,customBlock)
+            self.blockDetails.append(addBlock)
+            )
+        )
+
+
 
   close: (event,element)->
 
@@ -34,7 +47,7 @@ class FileEdit extends ScrollView
 
   openFile: (event,element) ->
 
-  package:(event,element) ->
+  package:(event,element) -> PackageFacade.build(null,null)
 
   createViewElements: (viewElement) ->
 
@@ -42,20 +55,20 @@ class FileEdit extends ScrollView
 
   getUri: -> Config.FILE_EDIT_URL
 
-  getTitle: -> @state.origin
+  getTitle: -> Package.model.selectedOrigin
 
   deactivate: ->
     console.log 'FileEdit: destroy '+event
     @instance = null;
     @state = null;
 
-  @detect: (pkg, origin, listOfBlocks ) ->
-    console.log 'FileEdit: detect '+pkg+' '+origin+' '+listOfBlocks
-    # return if @instance?
+  @detect: () ->
     @state = {}
-    @state.origin = origin
-    @state.listOfBlocks = listOfBlocks
-    @instance = new FileEdit(@state, pkg)
+    @state.origin = Package.model.selectedOrigin
+    @state.listOfBlocks = Package.model.listOfSelectedBlocks
+    @state.customBlocksSortByName = Package.model.customBlocksSortByName
+    console.log 'FileEdit: detect '+@state.origin+' '+@state.listOfBlocks+' '+@state.customBlocksSortByName
+    @instance = new FileEdit(@state)
     @instance
 
 

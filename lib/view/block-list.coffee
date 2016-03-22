@@ -2,6 +2,8 @@
 {CompositeDisposable, Emitter} = require 'atom'
 {BlockDetails}  = require './block-details'
 {FileEdit}  = require './file-edit'
+{BlockFacade}  = require '../block-facade'
+{Package} = require '../package'
 
 class BlockList extends View
 
@@ -27,48 +29,27 @@ class BlockList extends View
     BlockDetails.detect(@pkg,{name:element.attr('id')})
     console.log 'BlockList: viewBlock '+element.attr('id')
 
-  # TODO remove this not used yet
-  addBlock: (event, element) ->
-    self = this
-    $.ajax 'http://localhost:8080/rest/blocks/original/'+element.attr('id'),
-      success  : (block, status, xhr) ->
-        console.log 'BlockList: block fullLoaded '+block
-        self.pkg.editBlock(block)
-      error    : (xhr, status, err) ->
-          console.log("nah "+err)
-      complete : (xhr, status) ->
-          console.log("comp")
-
   viewFileContent: (event,element) ->
     self = this
     selectedOrigin = element.attr('id')
     listOfBlocks = @state.originalBlocks[selectedOrigin]
     console.log 'BlockList: view file content '+selectedOrigin+' '+listOfBlocks
-    self.pkg.editFile(selectedOrigin,listOfBlocks)
+    Package.model.pkg.editFile(selectedOrigin,listOfBlocks)
     console.log 'FileEdit: viewBlock '+selectedOrigin
 
 
   @detect: (pkg) ->
     return if @instance?
     console.log 'BlockList: detect'
-    $.ajax 'http://localhost:8080/rest/blocks/original',
-        success  : (data, status, xhr) ->
-            blockSortByOrigin = data.reduce(((map, obj) ->
-                if map[obj.origin] == undefined
-                  map[obj.origin] = []
-                map[obj.origin].push  obj
-                map
-            ), {})
-            state = {}
-            state.originalBlocks = blockSortByOrigin
-            @instance = new BlockList(state, pkg)
-            atom.workspace.addLeftPanel item: @instance
-            console.log 'BlockList: fullLoaded'
-        error    : (xhr, status, err) ->
-            console.log("nah "+err)
-        complete : (xhr, status) ->
-            console.log("comp")
 
+    BlockFacade.getAllOriginal(
+      (blockSortByOrigin) ->
+        console.log 'BlockList: original loaded'
+        state = {}
+        state.originalBlocks = blockSortByOrigin
+        @instance = new BlockList(state, pkg)
+        atom.workspace.addLeftPanel item: @instance
+    ,null)
 
 module.exports =
   BlockList: BlockList

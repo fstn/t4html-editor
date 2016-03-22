@@ -13,7 +13,7 @@ class Config
     @DESCRIBE_VERB: "describe"
     @FILE_EDIT_URL: "atom://t4html-file-edit"
     @BLOCK_EDIT_URL: "atom://t4html-block-edit"
-    @WS_URL: 'http://localhost:8080/rest/blocks/'
+    @WS_URL: 'http://localhost:8080/rest'
     constructor: ->
 
 module.exports =
